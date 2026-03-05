@@ -79,25 +79,25 @@ terraform-vpc-peering
 ```
 
 ```
-terraform.tf → Terraform settings and required providers
+terraform.tf -> Terraform settings and required providers
 
-providers.tf → AWS provider configuration
+providers.tf -> AWS provider configuration
 
-variables.tf → Input variables
+variables.tf -> Input variables
 
-terraform.tfvars → Variable values
+terraform.tfvars -> Variable values
 
-data.tf → Data sources (AMI, Availability Zones)
+data.tf -> Data sources (AMI, Availability Zones)
 
-locals.tf → Local values and reusable scripts
+locals.tf -> Local values and reusable scripts
 
-vpc.tf → VPC resources, Subnet configuration, Internet gateways, Route tables and associations
+vpc.tf -> VPC resources, Subnet configuration, Internet gateways, Route tables and associations
 
-peering.tf → VPC peering resources
+peering.tf -> VPC peering resources
 
-ec2.tf → Security groups and EC2 instances
+ec2.tf -> Security groups and EC2 instances
 
-outputs.tf → Terraform outputs
+outputs.tf -> Terraform outputs
 ```
 
 ### Networking Components
@@ -137,11 +137,26 @@ outputs.tf → Terraform outputs
 ## Prerequisites
 
 1. **AWS Account** with appropriate permissions
-2. **AWS CLI** configured with credentials
-3. **Terraform** installed (version >= 1.0)
+
+
+2. **Terraform** installed (version >= 1.0)
+
+```
+sudo chmod +x install-tf-awscliv2.sh
+./install-tf-awscliv2.sh
+```
+
+3. **AWS CLI** configured with credentials
+
+```
+aws configure
+```
+*Access key and Access ID required.*
+
 4. **SSH Key Pair** created in both regions 
 
 ### Creating SSH Key Pairs
+
 ```bash
 # For us-east-1
 aws ec2 create-key-pair --key-name vpc-peering-demo-useast1 --region us-east-1 --query 'KeyMaterial' --output text > vpc-peering-demo.pem
@@ -152,12 +167,21 @@ aws ec2 create-key-pair --key-name vpc-peering-demo-uswest2 --region us-west-2 -
 # Set permissions (on Linux/Mac)
 chmod 400 *.pem
 ```
+*These two keynames will be required to ssh instances*
+
+```
+vpc-peering-demo.pem
+vpc-peering-demo-west.pem
+```
+
 
 ## Setup Instructions 
 
-### 1. Clone and Navigate
+### 1. Clone and change to project directory
 
 ```
+git clone <repo-url>
+cd terraform-vpc-peering-connection-setup/
 ```
 
 ### 2. Configure Variables
@@ -193,13 +217,25 @@ terraform apply
 ```
 Type `yes` when prompted.
 
-4. Destroy resources, after completion of project:
+![alt text](demo-images-0403/tf_folder_structure.png)
+ 
+![alt text](demo-images-0403/create-keypair-before-tf-plan.png)
 
-```
-terraform destroy
-```
-Type `yes` when prompted. 
+![alt text](demo-images-0403/vpc-us-east-1.png)
 
+![alt text](demo-images-0403/vpc-us-west-2.png)
+
+![alt text](demo-images-0403/sg-primary.png)
+
+![alt text](demo-images-0403/sg-secondary.png)
+
+![alt text](demo-images-0403/ec2-instance-primary.png)
+
+![alt text](demo-images-0403/ec2-instance-secondary.png)
+
+![alt text](demo-images-0403/vpc-peering-connection.png)
+
+![alt text](demo-images-0403/tf-state-list.png)
 
 ## Testing VPC Peering Connection
 
@@ -210,27 +246,41 @@ After the infrastructure is created, you can test the VPC peering connection:
 ```
 terraform output
 ```
+![alt text](demo-images-0403/tf_output.png)
 
 ### 2. Test Connectivity from Primary to Secondary
 
 ```bash
 # SSH into Primary instance
-ssh -i vpc-peering-demo-useast1.pem ubuntu@<PRIMARY_PUBLIC_IP>
+ssh -i vpc-peering-demo.pem ubuntu@<PRIMARY_PUBLIC_IP>
 
 # Ping the Secondary instance using its private IP
 ping <SECONDARY_PRIVATE_IP>
+
 ```
+![alt text](demo-images-0403/ping-status-1.png)
 
 ### 3. Test Connectivity from Secondary to Primary
 
 ```bash
 # SSH into Secondary instance
-ssh -i vpc-peering-demo-uswest2.pem ubuntu@<SECONDARY_PUBLIC_IP>
+ssh -i vpc-peering-demo-west.pem ubuntu@<SECONDARY_PUBLIC_IP>
 
 # Ping the Primary instance using its private IP
 ping <PRIMARY_PRIVATE_IP>
 
 ```
+![alt text](demo-images-0403/ping-status-2.png)
+
+
+4. Destroy resources, after completion of project:
+
+```
+terraform destroy
+```
+Type `yes` when prompted.
+
+![alt text](demo-images-0403/tf-destroy.png)
 
 #### Key Concepts Demonstrated -
 
