@@ -1,5 +1,4 @@
-
-# PRIMARY VP
+# PRIMARY VPC
 
 resource "aws_vpc" "primary_vpc" {
   provider             = aws.primary
@@ -12,7 +11,7 @@ resource "aws_vpc" "primary_vpc" {
   }
 }
 
-# SECONDARY VP
+# SECONDARY VPC
 
 resource "aws_vpc" "secondary_vpc" {
   provider             = aws.secondary
@@ -33,6 +32,10 @@ resource "aws_subnet" "primary_subnet" {
   cidr_block              = var.primary_subnet_cidr
   availability_zone       = data.aws_availability_zones.primary.names[0]
   map_public_ip_on_launch = true
+
+  tags = {
+    Name = "Primary-Subnet-${var.primary_region}"
+  }
 }
 
 resource "aws_subnet" "secondary_subnet" {
@@ -41,6 +44,10 @@ resource "aws_subnet" "secondary_subnet" {
   cidr_block              = var.secondary_subnet_cidr
   availability_zone       = data.aws_availability_zones.secondary.names[0]
   map_public_ip_on_launch = true
+
+  tags = {
+    Name = "Secondary-Subnet-${var.secondary_region}"
+  }
 }
 
 # INTERNET GATEWAY
@@ -48,11 +55,19 @@ resource "aws_subnet" "secondary_subnet" {
 resource "aws_internet_gateway" "primary_igw" {
   provider = aws.primary
   vpc_id   = aws_vpc.primary_vpc.id
+
+  tags = {
+    Name = "Primary-IGW-${var.primary_region}"
+  }
 }
 
 resource "aws_internet_gateway" "secondary_igw" {
   provider = aws.secondary
   vpc_id   = aws_vpc.secondary_vpc.id
+
+  tags = {
+    Name = "Secondary-IGW-${var.secondary_region}"
+  }
 }
 
 # ROUTE TABLE
@@ -65,6 +80,10 @@ resource "aws_route_table" "primary_rt" {
     cidr_block = "0.0.0.0/0"
     gateway_id = aws_internet_gateway.primary_igw.id
   }
+
+  tags = {
+    Name = "Primary-RouteTable-${var.primary_region}"
+  }
 }
 
 resource "aws_route_table" "secondary_rt" {
@@ -74,6 +93,10 @@ resource "aws_route_table" "secondary_rt" {
   route {
     cidr_block = "0.0.0.0/0"
     gateway_id = aws_internet_gateway.secondary_igw.id
+  }
+
+  tags = {
+    Name = "Secondary-RouteTable-${var.secondary_region}"
   }
 }
 
@@ -90,6 +113,4 @@ resource "aws_route_table_association" "secondary_rta" {
   subnet_id      = aws_subnet.secondary_subnet.id
   route_table_id = aws_route_table.secondary_rt.id
 }
-
-
 

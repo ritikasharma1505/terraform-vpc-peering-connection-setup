@@ -25,6 +25,10 @@ resource "aws_security_group" "primary_sg" {
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
+
+  tags = {
+    Name = "Primary-SG-${var.primary_region}"
+  }
 }
 
 resource "aws_security_group" "secondary_sg" {
@@ -52,6 +56,10 @@ resource "aws_security_group" "secondary_sg" {
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
+
+  tags = {
+    Name = "Secondary-SG-${var.secondary_region}"
+  }
 }
 
 # EC2 INSTANCE
@@ -67,6 +75,10 @@ resource "aws_instance" "primary_instance" {
   user_data = local.primary_user_data
 
   depends_on = [aws_route.primary_to_secondary]
+
+  tags = {
+    Name = "Primary-Instance-${var.primary_region}"
+  }
 }
 
 resource "aws_instance" "secondary_instance" {
@@ -80,4 +92,8 @@ resource "aws_instance" "secondary_instance" {
   user_data = local.secondary_user_data
 
   depends_on = [aws_route.secondary_to_primary]
+
+  tags = {
+    Name = "Secondary-Instance-${var.secondary_region}"
+  }
 }

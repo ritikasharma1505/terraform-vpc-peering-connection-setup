@@ -1,4 +1,4 @@
-# VPC PEERING REQUEST (Primary Region)
+# VPC PEERING
 
 resource "aws_vpc_peering_connection" "primary_to_secondary" {
   provider    = aws.primary
@@ -8,23 +8,17 @@ resource "aws_vpc_peering_connection" "primary_to_secondary" {
   auto_accept = false
 
   tags = {
-    Name = "Primary-to-Secondary-Peering"
+    Name = "Cross-Region-Peering"
   }
 }
-
-# VPC PEERING ACCEPTANCE (Secondary Region)
 
 resource "aws_vpc_peering_connection_accepter" "secondary_accepter" {
   provider                  = aws.secondary
   vpc_peering_connection_id = aws_vpc_peering_connection.primary_to_secondary.id
   auto_accept               = true
-
-  tags = {
-    Name = "Secondary-Peering-Accepter"
-  }
 }
 
-# ENABLE DNS RESOLUTION ON REQUESTER SIDE
+# ENABLE DNS RESOLUTION
 
 resource "aws_vpc_peering_connection_options" "primary_dns" {
   provider                  = aws.primary
@@ -34,12 +28,8 @@ resource "aws_vpc_peering_connection_options" "primary_dns" {
     allow_remote_vpc_dns_resolution = true
   }
 
-  depends_on = [
-    aws_vpc_peering_connection_accepter.secondary_accepter
-  ]
+  depends_on = [aws_vpc_peering_connection_accepter.secondary_accepter]
 }
-
-# ENABLE DNS RESOLUTION ON ACCEPTER SIDE
 
 resource "aws_vpc_peering_connection_options" "secondary_dns" {
   provider                  = aws.secondary
@@ -49,44 +39,31 @@ resource "aws_vpc_peering_connection_options" "secondary_dns" {
     allow_remote_vpc_dns_resolution = true
   }
 
-  depends_on = [
-    aws_vpc_peering_connection_accepter.secondary_accepter
-  ]
+  depends_on = [aws_vpc_peering_connection_accepter.secondary_accepter]
 }
 
-# ROUTE FROM PRIMARY VPC -> SECONDARY VPC
+# ROUTES FOR PEERING
 
 resource "aws_route" "primary_to_secondary" {
-  provider = aws.primary
-
+  provider                  = aws.primary
   route_table_id            = aws_route_table.primary_rt.id
   destination_cidr_block    = var.secondary_vpc_cidr
   vpc_peering_connection_id = aws_vpc_peering_connection.primary_to_secondary.id
 
-#  depends_on = [
-#    aws_vpc_peering_connection_accepter.secondary_accepter
-#  ]
-
   depends_on = [
-    aws_vpc_peering_connection_options.primary_dns,
-    aws_vpc_peering_connection_options.secondary_dns
+    aws_vpc_peering_connection.primary_to_secondary,
+    aws_vpc_peering_connection_accepter.secondary_accepter
   ]
 }
 
-# ROUTE FROM SECONDARY VPC -> PRIMARY VPC
-
 resource "aws_route" "secondary_to_primary" {
-  provider = aws.secondary
-
+  provider                  = aws.secondary
   route_table_id            = aws_route_table.secondary_rt.id
   destination_cidr_block    = var.primary_vpc_cidr
   vpc_peering_connection_id = aws_vpc_peering_connection.primary_to_secondary.id
 
- # depends_on = [
- #  aws_vpc_peering_connection_accepter.secondary_accepter
- # ]
   depends_on = [
-    aws_vpc_peering_connection_options.primary_dns,
-    aws_vpc_peering_connection_options.secondary_dns
+    aws_vpc_peering_connection.primary_to_secondary,
+    aws_vpc_peering_connection_accepter.secondary_accepter
   ]
 }

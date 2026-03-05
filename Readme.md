@@ -215,24 +215,24 @@ terraform output
 
 ```bash
 # SSH into Primary instance
-ssh -i vpc-peering-demo-useast1.pem ec2-user@<PRIMARY_PUBLIC_IP>
+ssh -i vpc-peering-demo-useast1.pem ubuntu@<PRIMARY_PUBLIC_IP>
 
 # Ping the Secondary instance using its private IP
 ping <SECONDARY_PRIVATE_IP>
-
+```
 
 ### 3. Test Connectivity from Secondary to Primary
 
 ```bash
 # SSH into Secondary instance
-ssh -i vpc-peering-demo-uswest2.pem ec2-user@<SECONDARY_PUBLIC_IP>
+ssh -i vpc-peering-demo-uswest2.pem ubuntu@<SECONDARY_PUBLIC_IP>
 
 # Ping the Primary instance using its private IP
 ping <PRIMARY_PRIVATE_IP>
 
 ```
 
-#### Key Concepts Demonstrated
+#### Key Concepts Demonstrated -
 
 - Cross-region VPC peering
 
@@ -246,7 +246,7 @@ ping <PRIMARY_PRIVATE_IP>
 
 - EC2 connectivity using private IP addresses
 
-#### Notes
+#### Notes -
 
 - VPC peering enables private communication between VPCs.
 
@@ -254,7 +254,7 @@ ping <PRIMARY_PRIVATE_IP>
 
 - One VPC cannot use another VPC’s Internet Gateway through peering.
 
-#### Terraform Best Practices Learned
+#### Terraform Best Practices Learned -
 
 - Use provider aliases for multi-region deployments
 
