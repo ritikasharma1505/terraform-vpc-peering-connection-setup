@@ -1,5 +1,7 @@
 ## Cross-Region VPC Peering using Terraform
 
+![alt text](demo-images-0403/vpc-peering-tf.drawio.png)
+
 This project demonstrates how to create cross-region VPC peering using Terraform.
 Two VPCs are deployed in different AWS regions and connected through a VPC Peering Connection, allowing EC2 instances in each VPC to communicate using their private IP addresses.
 
@@ -62,7 +64,7 @@ For simplicity and easier testing, the EC2 instances are deployed in public subn
 terraform-vpc-peering
 │
 ├── git.ignore
-├── demo-images/
+├── Readme.md
 │
 ├── data.tf
 ├── ec2.tf
@@ -70,7 +72,6 @@ terraform-vpc-peering
 ├── outputs.tf
 ├── peering.tf
 ├── providers.tf
-├── Readme.md
 ├── terraform.tf
 ├── terraform.tfvars
 ├── terraform.tfvars.example
@@ -125,14 +126,14 @@ outputs.tf -> Terraform outputs
 
 1. **EC2 Instance**:
    - One t2.micro instance in each VPC
-   - Running Amazon Linux 2
-   - Apache web server installed
-   - Custom web page showing VPC information
+   - Running Ubuntu
+   - Apache web server installed (optional)
+   - Custom web page showing VPC information (optional)
 
 2. **Security Group**:
    - SSH access from anywhere (port 22)
-   - ICMP (ping) allowed from peered VPC
-   - All TCP traffic allowed between VPCs
+   - ICMP (ping) allowed from peered VPC 
+   - All TCP traffic allowed between VPCs (optional)
 
 ## Prerequisites
 
@@ -217,7 +218,7 @@ terraform apply
 ```
 Type `yes` when prompted.
 
-![alt text](demo-images-0403/tf_folder_structure.png)
+![alt text](demo-images-0403/tf-folder-structure.png)
  
 ![alt text](demo-images-0403/create-keypair-before-tf-plan.png)
 
